@@ -74,10 +74,11 @@ rule add_read_groups:
     output:
         '%s/{sample}.{genome}.bam' % READ_GROUPS_DIR
     params:
-        picard = config['picard_path']
+        picard = config['picard_path'],
+        sample = '{sample}'
     shell:
         "{params.picard} AddOrReplaceReadGroups I={input} O={output} SO=coordinate RGID=id "
-        "RGLB=library RGPL=ILLUMINA RGPU=machine RGSM=sample; "
+        "RGLB=library RGPL=ILLUMINA RGPU=machine RGSM={params.sample};"
 
 
 rule mark_duplicates:
@@ -171,7 +172,7 @@ rule variant_calling:
     shell:
         "{params.gatk} -T HaplotypeCaller -I {input.bam} -o {output} -R {input.refgen} "
         "--genotyping_mode DISCOVERY -stand_call_conf 30 "
-        "--emitRefConfidence GVCF"
+        "-ERC GVCF"
 
 
 rule joint_variant_calling:
